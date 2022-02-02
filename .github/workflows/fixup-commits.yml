@@ -1,0 +1,16 @@
+name: Block on fixup commits
+
+on: workflow_call
+
+# Expected GITHUB_TOKEN permissions
+# permissions:
+#   pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: xt0rted/block-autosquash-commits-action@v2.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
