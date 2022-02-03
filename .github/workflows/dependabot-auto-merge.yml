@@ -82,7 +82,7 @@ jobs:
           &&
           (
             steps.dependabot_metadata.outputs.update-type == 'version-update:semver-minor' ||
-            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
+            steps.dependabot_metadata.outputs.update-type == 'version-update:semver-patch'
           )
         run: gh pr merge --auto --merge "$PR_URL"
         env:
