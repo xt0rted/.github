@@ -1,0 +1,4 @@
+{
+  "name": "Dependabot auto-merge",
+  "description": "Enable auto-merge on pull requests opened by Dependabot that match specific criteria"
+}
