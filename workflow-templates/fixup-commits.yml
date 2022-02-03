@@ -1,6 +1,6 @@
 name: Block on fixup commits
 
-on: pull_request
+on: pull_request_target
 
 permissions:
   pull-requests: read
