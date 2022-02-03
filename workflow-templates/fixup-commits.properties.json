@@ -1,5 +1,5 @@
 {
     "name": "Block on fixup commits",
     "description": "Block merging PRs that contain fixup! and squash! commit messages",
-    "iconName": "pull_request"
+    "iconName": "fixup-commits"
 }
