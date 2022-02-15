@@ -34,49 +34,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Dependabot ecosystem
-        uses: actions/github-script@v5.1.0
-        id: metadata
-        with:
-          script: |
-            // https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates#package-ecosystem
-            const ecosystems = {
-              bundler: "bundler",
-              cargo: "cargo",
-              composer: "composer",
-              docker: "docker",
-              elm: "elm",
-              github_actions: "github-actions",
-              go_modules: "gomod",
-              gradle: "gradle",
-              hex: "mix",
-              maven: "maven",
-              npm_and_yarn: "npm",
-              nuget: "nuget",
-              pip: "pip",
-              submodules: "gitsubmodule",
-              terraform: "terraform",
-            };
-
-            const branchName = context.payload.pull_request.head.ref;
-            const [, branchEnvironment] = branchName.split("/");
-            const ecosystem = ecosystems[branchEnvironment];
-
-            if (!ecosystem) {
-              core.setFailed(`No ecosystem found in branch: ${branchName}`);
-              return;
-            }
-
-            core.info(`dependency-ecosystem detected: ${ecosystem}`);
-            core.setOutput("dependency-ecosystem", ecosystem);
-
       - name: Authenticate cli
         run: echo "${{ steps.generate_token.outputs.token }}" | gh auth login --with-token
 
       - name: Enable auto-merge for Dependabot PRs
         if: |
           (
-            steps.metadata.outputs.dependency-ecosystem == 'github-actions' ||
+            steps.dependabot_metadata.outputs.package-ecosystem == 'github-actions' ||
             steps.dependabot_metadata.outputs.dependency-type == 'direct:development'
           )
           &&
