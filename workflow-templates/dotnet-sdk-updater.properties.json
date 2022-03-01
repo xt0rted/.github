@@ -1,0 +1,4 @@
+{
+  "name": ".NET SDK updater",
+  "description": "Update global.json files with the latest SDK version"
+}
