@@ -30,9 +30,7 @@ jobs:
 
       - name: Dependabot metadata
         id: dependabot_metadata
-        uses: dependabot/fetch-metadata@v1.2.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: dependabot/fetch-metadata@v1.3.0
 
       - name: Authenticate cli
         run: echo "${{ steps.generate_token.outputs.token }}" | gh auth login --with-token
