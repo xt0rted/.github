@@ -1,0 +1,4 @@
+{
+  "name": ".NET tool updater",
+  "description": "Check for new dotnet tool versions and PR updates for them"
+}
