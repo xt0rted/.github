@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  update:
+  sdk:
     runs-on: ubuntu-latest
 
     steps:
