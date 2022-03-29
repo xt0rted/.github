@@ -53,7 +53,7 @@ jobs:
             const projects = JSON.parse(process.env["project_tools"]);
 
             await asyncForEach(projects, async (project) => {
-              console.info(`Dispatching for ${project.package-name}`);
+              console.info(`Dispatching for ${project["package-name"]}`);
 
               await github.request("POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", {
                 ...context.repo,
