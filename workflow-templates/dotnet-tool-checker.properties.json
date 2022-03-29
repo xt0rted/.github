@@ -1,0 +1,4 @@
+{
+  "name": ".NET tool checker",
+  "description": "Check .config/dotnet-tools.json for any local tools and dispatch an update request for each one"
+}
