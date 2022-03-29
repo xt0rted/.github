@@ -2,18 +2,14 @@ name: .NET tool checker
 
 on:
   workflow_call:
-    inputs:
-      workflow_id:
-        default: dotnet-tool-updater.yml
-        description: The workflow to dispatch to
-        required: true
-        type: string
-
     secrets:
       DOTNET_UPDATER_APP_ID:
         required: true
       DOTNET_UPDATER_PRIVATE_KEY:
         required: true
+
+env:
+  workflow_id: dotnet-tool-updater.yml
 
 jobs:
   check:
@@ -58,7 +54,7 @@ jobs:
               await github.request("POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", {
                 ...context.repo,
                 ref: context.ref,
-                workflow_id: "${{ github.event.inputs.workflow_id }}",
+                workflow_id: "${{ env.workflow_id }}",
                 inputs: project,
               });
             });
