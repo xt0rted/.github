@@ -86,7 +86,9 @@ jobs:
           committer: dotnet-updater[bot] <100138291+dotnet-updater[bot]@users.noreply.github.com>
           commit-message: |
             Bump ${{ github.event.inputs.package-name }} from ${{ github.event.inputs.package-version}} to ${{ steps.meta.outputs.new-version }}
+
             Bumps [${{ github.event.inputs.package-name }}](${{ steps.meta.outputs.project-url }}) from ${{ github.event.inputs.package-version}} to ${{ steps.meta.outputs.new-version }}.
+
             ---
             updated-dependencies:
             - dependency-name: ${{ github.event.inputs.package-name }}
