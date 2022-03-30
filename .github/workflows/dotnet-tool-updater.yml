@@ -35,12 +35,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3.0.0
 
+      - name: Remove comments from global.json
+        shell: pwsh
+        run: |
+          Copy-Item global.json global.json.copy
+          npx -y strip-json-comments-cli global.json.copy > global.json
+          Remove-Item global.json.copy
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v2.0.0
         with:
           source-url: https://nuget.pkg.github.com/xt0rted/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
+
+      - name: Restore global.json
+        run: git checkout -- global.json
 
       - name: Check for package update
         run: dotnet tool update ${{ github.event.inputs.package-name }}
