@@ -38,7 +38,7 @@ jobs:
       - name: Enable auto-merge for Dependabot PRs
         if: |
           (
-            steps.dependabot_metadata.outputs.package-ecosystem == 'github-actions' ||
+            steps.dependabot_metadata.outputs.package-ecosystem == 'github_actions' ||
             steps.dependabot_metadata.outputs.dependency-type == 'direct:development'
           )
           &&
