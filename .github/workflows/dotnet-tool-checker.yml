@@ -47,9 +47,24 @@ jobs:
             }
 
             const projects = JSON.parse(process.env["project_tools"]);
+            const summary = [
+              [
+                {
+                  header: true,
+                  data: "Name",
+                },
+                {
+                  header: true,
+                  data: "Current version",
+                },
+              ],
+            ];
 
             await asyncForEach(projects, async (project) => {
-              console.info(`Dispatching for ${project["package-name"]}`);
+              summary.push([
+                project["package-name"],
+                `<a href="https://www.nuget.org/packages/${project["package-name"]}/${project["package-version"]}">${project["package-version"]}</a>`,
+              ]);
 
               await github.request("POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", {
                 ...context.repo,
@@ -58,5 +73,11 @@ jobs:
                 inputs: project,
               });
             });
+
+            await core
+              .summary
+              .addHeading("Packages checked")
+              .addTable(summary)
+              .write();
         env:
          project_tools: ${{ steps.project.outputs.tools }}
