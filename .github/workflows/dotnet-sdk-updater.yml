@@ -34,8 +34,8 @@ jobs:
         run: |
           if [ "${{ steps.sdk.outputs.security-release }}" = "true" ]
           then
-            echo "::set-output name=label::security"
-            echo "::set-output name=message::**This update includes a security fix.**"
+            echo "label=security" >> $GITHUB_OUTPUT
+            echo "message=**This update includes a security fix.**" >> $GITHUB_OUTPUT
           fi
 
       - name: Create pull request
