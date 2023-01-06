@@ -21,7 +21,7 @@ jobs:
           private_key: ${{ secrets.DOTNET_UPDATER_PRIVATE_KEY }}
 
       - name: Check out repo
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
 
       - name: Check for new sdk version
         uses: xt0rted/dotnet-sdk-updater@v1.1.0
