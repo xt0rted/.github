@@ -3,6 +3,48 @@ name: Dependabot auto-merge
 
 on:
   workflow_call:
+    inputs:
+      allowed-groups:
+        description: |
+          A JSON object of ecosystems and their allowed groups. If the pull request
+          is for an ecosystem & group that is not in the list, it will not be merged.
+
+          Example JSON:
+          {
+            "github_actions": [
+              "group",
+            ],
+            "npm_and_yarn": [
+              "group",
+            ],
+            "nuget": [
+              "group",
+            ],
+          }
+        required: false
+        type: string
+        default: "{}"
+      allowed-packages:
+        description: |
+          A JSON object of ecosystems and their allowed packages. If the pull request
+          is for an ecosystem & package that is not in the list, it will not be merged.
+
+          Example JSON:
+          {
+            "github_actions": [
+              "package",
+            ],
+            "npm_and_yarn": [
+              "package",
+            ],
+            "nuget": [
+              "package",
+            ],
+          }
+        required: false
+        type: string
+        default: "{}"
+
     secrets:
       GITHUB_APP_ID:
         required: true
@@ -15,37 +57,103 @@ on:
 #   pull-requests: read
 
 jobs:
-  auto-merge:
-    runs-on: ubuntu-latest
-
+  metadata:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
 
-    steps:
-      - name: Generate token
-        id: generate_token
-        uses: tibdex/github-app-token@v1.8.0
-        with:
-          app_id: ${{ secrets.GITHUB_APP_ID }}
-          private_key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+    runs-on: ubuntu-latest
 
+    outputs:
+      # custom
+      is-group: ${{ steps.dependabot-metadata.outputs.dependency-group != '' }}
+      is-package: ${{ steps.dependabot-metadata.outputs.dependency-group == '' }}
+      # flowed through
+      dependency-group: ${{ steps.dependabot-metadata.outputs.dependency-group }}
+      dependency-type: ${{ steps.dependabot-metadata.outputs.dependency-type }}
+      package-ecosystem: ${{ steps.dependabot-metadata.outputs.package-ecosystem }}
+      update-type: ${{ steps.dependabot-metadata.outputs.update-type }}
+      updated-dependencies-json: ${{ steps.dependabot-metadata.outputs.updated-dependencies-json }}
+
+    steps:
       - name: Dependabot metadata
-        id: dependabot_metadata
+        id: dependabot-metadata
         uses: dependabot/fetch-metadata@v1.6.0
 
-      - name: Authenticate cli
-        run: echo "${{ steps.generate_token.outputs.token }}" | gh auth login --with-token
+  check-groups:
+    if: needs.metadata.outputs.is-group
 
-      - name: Enable auto-merge for Dependabot PRs
+    needs: metadata
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      do-update: ${{ steps.auto-merge.outputs.do-update == 'true' }}
+
+    steps:
+      - name: Enable auto-merge
+        id: auto-merge
+        if: |
+          contains(fromJson(github.event.inputs.allowed-groups)[needs.metadata.outputs.package-ecosystem], needs.metadata.outputs.dependency-group)
+          &&
+          (
+            needs.metadata.outputs.update-type == 'version-update:semver-minor' ||
+            needs.metadata.outputs.update-type == 'version-update:semver-patch'
+          )
+        run: echo "do-update=true" >> $GITHUB_OUTPUT
+
+  check-packages:
+    if: needs.metadata.outputs.is-package
+
+    needs: metadata
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      do-update: ${{ steps.auto-merge.outputs.do-update == 'true' }}
+
+    steps:
+      - name: Enable auto-merge
+        id: auto-merge
         if: |
           (
-            steps.dependabot_metadata.outputs.package-ecosystem == 'github_actions' ||
-            steps.dependabot_metadata.outputs.dependency-type == 'direct:development'
+            contains(fromJson(github.event.inputs.allowed-groups)[needs.metadata.outputs.package-ecosystem], fromJson(needs.metadata.outputs.updated-dependencies-json)[0].dependencyName)
+            ||
+            (
+              needs.metadata.outputs.package-ecosystem == 'github_actions' ||
+              needs.metadata.outputs.dependency-type == 'direct:development'
+            )
           )
           &&
           (
-            steps.dependabot_metadata.outputs.update-type == 'version-update:semver-minor' ||
-            steps.dependabot_metadata.outputs.update-type == 'version-update:semver-patch'
+            needs.metadata.outputs.update-type == 'version-update:semver-minor' ||
+            needs.metadata.outputs.update-type == 'version-update:semver-patch'
           )
+        run: echo "do-update=true" >> $GITHUB_OUTPUT
+
+  merge:
+    if: |
+      always()
+      &&
+      (
+        needs.check-packages.outputs.do-update == 'true' ||
+        needs.check-groups.outputs.do-update == 'true'
+      )
+
+    needs:
+      - check-groups
+      - check-packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: tibdex/github-app-token@v1.8.0
+        with:
+          app_id: ${{ secrets.DEPENDAMERGE_APP_ID }}
+          private_key: ${{ secrets.DEPENDAMERGE_PRIVATE_KEY }}
+
+      - name: Enable auto-merge
         run: gh pr merge --auto --merge "$PR_URL"
         env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
