@@ -89,6 +89,14 @@ jobs:
       do-update: ${{ steps.auto-merge.outputs.do-update == 'true' }}
 
     steps:
+      - run: echo "$GITHUB_CONTEXT_INPUTS"
+        env:
+          GITHUB_CONTEXT_INPUTS: ${{ toJson(github.event.inputs) }}
+
+      - run: echo "$NEEDS_CONTEXT"
+        env:
+          NEEDS_CONTEXT: ${{ toJson(needs) }}
+
       - name: Enable auto-merge
         id: auto-merge
         if: |
@@ -111,6 +119,14 @@ jobs:
       do-update: ${{ steps.auto-merge.outputs.do-update == 'true' }}
 
     steps:
+      - run: echo "$GITHUB_CONTEXT_INPUTS"
+        env:
+          GITHUB_CONTEXT_INPUTS: ${{ toJson(github.event.inputs) }}
+
+      - run: echo "$NEEDS_CONTEXT"
+        env:
+          NEEDS_CONTEXT: ${{ toJson(needs) }}
+
       - name: Enable auto-merge
         id: auto-merge
         if: |
