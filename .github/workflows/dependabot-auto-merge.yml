@@ -131,7 +131,7 @@ jobs:
         id: auto-merge
         if: |
           (
-            contains(fromJson(inputs.allowed-groups)[needs.metadata.outputs.package-ecosystem], fromJson(needs.metadata.outputs.updated-dependencies-json)[0].dependencyName)
+            contains(fromJson(inputs.allowed-packages)[needs.metadata.outputs.package-ecosystem], fromJson(needs.metadata.outputs.updated-dependencies-json)[0].dependencyName)
             ||
             (
               needs.metadata.outputs.package-ecosystem == 'github_actions' ||
