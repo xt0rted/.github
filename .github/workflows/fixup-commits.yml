@@ -12,5 +12,6 @@ jobs:
 
     steps:
       - uses: xt0rted/block-autosquash-commits-action@v2.2.0
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
